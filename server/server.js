@@ -1,4 +1,7 @@
-const {createServer} = require('http');
+
+
+// FOR SOCKET //
+/* const {createServer} = require('http');
 const {Server} = require('socket.io');
 
 const httpServer = createServer();
@@ -10,4 +13,4 @@ socket.on('connection',(socket)=>{
 
 httpServer.listen(3000, () =>{
     console.log('server is connected')
-})
+}) */
