@@ -1,3 +1,14 @@
+// express
+const express = require('express');
+const app = express();
+const path = require('path');
+// db 
+const db = require('./config/connection')
+// apollo 
+// auth 
+// schemas
+
+
 
 // FOR SOCKET //
 /* const {createServer} = require('http');
