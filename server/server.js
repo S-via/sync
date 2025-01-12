@@ -11,6 +11,7 @@ const { createAdapter } = require('@socket.io/mongo-adapter')
 // db 
 const db = require('./config/connection')
 const { authMiddleware } = require('./utils/auth');
+const PORT = process.env.PORT || 3001;
 // auth 
 // schemas
 
@@ -33,7 +34,6 @@ const startApolloServer = async () => {
 
     ///////// express static files go here //////////
 
-    const PORT = process.env.PORT || 3001;
     db.once('open', () => {
         console.log('MongoDB connection established');
         // connection with socket and db 
@@ -47,11 +47,10 @@ const startApolloServer = async () => {
 
             });
         });
-        httpServer.listen(PORT, () => console.log(`On localhost:${PORT}`))
-    })
-    
+        httpServer.listen(PORT, () => console.log(`On localhost:${PORT}`));
+        console.log('graphQL at http://localhost:${PORT}/graphql');
+    });
+
 };
-
-
 startApolloServer();
 
