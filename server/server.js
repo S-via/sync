@@ -1,26 +1,57 @@
-// express
+// packages
+const path = require('path');
 const express = require('express');
 const app = express();
-const path = require('path');
+const { expressMiddleware } = require('@apollo/server/express4');
+const { ApolloServer } = require('@apollo/server');
+const http = require('http');
+const { Server } = require('socket.io');
+const { createAdapter } = require('@socket.io/mongo-adapter')
+
 // db 
 const db = require('./config/connection')
-// apollo 
+const { authMiddleware } = require('./utils/auth');
 // auth 
 // schemas
 
+// socket.io and http
+const httpServer = http.createServer(app);
+const io = new Server(httpServer);
+
+// Apollo server 
+const apolloServer = new ApolloServer({
+    typeDefs,
+    resolvers,
+})
+// Apollo server with Middleware 
+const startApolloServer = async () => {
+    await apolloServer.start();
+
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
+    app.use('/graphql', expressMiddleware(apolloServer, { context: authMiddleware }));
+
+    ///////// express static files go here //////////
+
+    const PORT = process.env.PORT || 3001;
+    db.once('open', () => {
+        console.log('MongoDB connection established');
+        // connection with socket and db 
+        io.adapter(createAdapter(db, { collection: 'socketio' }));
+        // event handeling for socket io 
+        io.on('connected', (socket) => {
+            console.log('user is connected', socket.id);
+
+            socket.on('disconnect', () => {
+                console.log('User is disconnected:', socket.id);
+
+            });
+        });
+        httpServer.listen(PORT, () => console.log(`On localhost:${PORT}`))
+    })
+    
+};
 
 
-// FOR SOCKET //
-/* const {createServer} = require('http');
-const {Server} = require('socket.io');
+startApolloServer();
 
-const httpServer = createServer();
-const socket = new Server(httpServer,{});
-
-socket.on('connection',(socket)=>{
-    console.log(socket);
-});
-
-httpServer.listen(3000, () =>{
-    console.log('server is connected')
-}) */
