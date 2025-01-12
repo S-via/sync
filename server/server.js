@@ -8,12 +8,12 @@ const http = require('http');
 const { Server } = require('socket.io');
 const { createAdapter } = require('@socket.io/mongo-adapter')
 
-// db 
+// db , auth , schemas
+const PORT = process.env.PORT || 3001;
 const db = require('./config/connection')
 const { authMiddleware } = require('./utils/auth');
-const PORT = process.env.PORT || 3001;
-// auth 
-// schemas
+const {typeDefs,resolvers}= require('./schemas');
+
 
 // socket.io and http
 const httpServer = http.createServer(app);
