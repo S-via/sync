@@ -12,7 +12,7 @@ const { createAdapter } = require('@socket.io/mongo-adapter')
 const PORT = process.env.PORT || 3001;
 const db = require('./config/connection')
 const { authMiddleware } = require('./utils/auth');
-const {typeDefs,resolvers}= require('./schemas');
+const { typeDefs, resolvers } = require('./schemas');
 
 
 // socket.io and http
@@ -31,15 +31,19 @@ const startApolloServer = async () => {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use('/graphql', expressMiddleware(apolloServer, { context: authMiddleware }));
+    console.log(`graphQL at http://localhost:${PORT}/graphql`);
 
     ///////// express static files go here //////////
 
+
     db.once('open', () => {
         console.log('MongoDB connection established');
-        // connection with socket and db 
-        io.adapter(createAdapter(db, { collection: 'socketio' }));
+        // connection with socket and mongoDb 
+        const socketCollection = db.collection('socketio');
+        io.adapter(createAdapter(socketCollection));
+
         // event handeling for socket io 
-        io.on('connected', (socket) => {
+        io.on('connection', (socket) => {
             console.log('user is connected', socket.id);
 
             socket.on('disconnect', () => {
@@ -48,7 +52,6 @@ const startApolloServer = async () => {
             });
         });
         httpServer.listen(PORT, () => console.log(`On localhost:${PORT}`));
-        console.log('graphQL at http://localhost:${PORT}/graphql');
     });
 
 };
